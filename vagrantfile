@@ -6,9 +6,6 @@ Vagrant.require_version ">= 1.9.2"
 API_VERSION = "2"
 require 'yaml'
 
-# Explicitly set default provider to virtualbox
-ENV['VAGRANT_DEFAULT_PROVIDER'] = 'virtualbox'
-
 # read YAML file to get config data and vm details
 config          = YAML.load_file('config.yaml')
 settings        = config['settings']        || {}
@@ -20,6 +17,13 @@ mastername      = settings['mastername']    || 'master'
 network         = settings['network']       || '192.168.56'
 codebase        = settings['codebase']      || {}
 codedest        = settings['codedest']      || {}
+defaultprovider = settings['provider']      || 'virtualbox'
+
+# Explicitly set default provider to virtualbox
+ENV['VAGRANT_DEFAULT_PROVIDER'] = defaultprovider
+
+defaultproviderfile = File.expand_path('providers/checks/' + defaultprovider)
+eval File.read(defaultproviderfile) if File.exists?(defaultproviderfile)
 
 # Create master box
 Vagrant.configure(API_VERSION) do |config|
@@ -47,6 +51,7 @@ Vagrant.configure(API_VERSION) do |config|
     domain    = server['domain']    || defaultdomain
     name      = server['name'] + '.' + domain
     ip        = network.to_s + '.' + count.to_s
+    provider  = server['provider']  || defaultprovider
 
     # Increase count number for IP address usage
     count     += 1
@@ -59,18 +64,15 @@ Vagrant.configure(API_VERSION) do |config|
       if box_url
         dev.vm.box_url = box_url
       end
-      dev.vm.network :private_network, ip: ip
       if folders
         for pair in folders
           dev.vm.synced_folder pair['from'], pair['to']
         end
       end
 
-      dev.vm.provider :virtualbox do |v|
-        v.customize ["modifyvm", :id, "--name", name ]
-        v.customize ["modifyvm", :id, "--cpus", cpu ]
-        v.customize ["modifyvm", :id, "--memory", ram ]
-      end
+      providerfile = File.expand_path('providers/' + provider)
+      eval File.read(providerfile)
+
     end
   end
 end
