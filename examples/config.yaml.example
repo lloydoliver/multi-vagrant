@@ -1,0 +1,49 @@
+# Settings file for Vagrant VMs.
+#
+# This file controls different aspects of your vagrant environment.
+#
+# Copy this example file to ../config.yaml and edit to your needs.
+#
+# example:
+#
+# settings:
+#   codebase: ~/your/local/code     (** required **)
+#   codedest: /some/remote/dir      (** required **)
+#   domain: example.com             (optional)
+#   defaultbox: ubuntu/xenial64     (optional)
+#   masterbox: ubuntu/xenial64      (optional)
+#   mastername: master001           (optional)
+#   network: 192.168.56             (optional) (leave last octect off)
+#
+# vms:
+#   - name: foobar                  (** required **)
+#     box: ubuntu/xenial64          (optional)
+#     ram: 2048                     (optional)
+#     cpu: 4                        (optional)
+#     folders:                      (optional)
+#       from: '/some/local/dir/'    (optional)
+#       to: '/some/dir/in/vm'       (optional)
+#
+# the below example will add 2 boxes with names dave and fred with default values
+#
+# boxes:
+#   - name: dave
+#   - name: fred
+
+
+settings:
+  domain: dev.local
+  defaultbox: iamseth/rhel-7.3
+  codebase: /your/code/dir
+  codedest: /srv/code
+
+vms:
+  - name: dev1
+    cpu: 4
+    ram: 8192
+
+  - name: dev2
+    ram: 4096
+
+  - name: dev3
+
