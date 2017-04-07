@@ -1,6 +1,11 @@
-# Vagrant
+# Multi Vagrant
+
+(( WORK IN PROGRESS ))
 
 ## Overview
+
+The idea behind this is to have a vagrant setup to support multiple providers and provisioners defined in a single config.
+At present, this is just a single VIRTUALBOX provider setup, with no provisioners, but the plan is to add support for all of the things as time goes on.
 
 
 ## Requirements
