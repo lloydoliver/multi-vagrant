@@ -1,4 +1,0 @@
-unless Vagrant.has_plugin?('salty-vagrant-grains')
-  puts 'ERROR salty-vagrant-grains plugin is not installed!
-  system('vagrant plugin install salty-vagrant-grains')
-end
