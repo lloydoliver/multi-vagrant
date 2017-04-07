@@ -70,8 +70,16 @@ Vagrant.configure(API_VERSION) do |config|
         end
       end
 
+      # Load provider specific settings
       providerfile = File.expand_path('providers/' + provider)
-      eval File.read(providerfile)
+      if File.exists?(providerfile)
+        eval File.read(providerfile)
+      else
+        # raise an error if provider support hasn't been added.
+        puts "UHNOES! " + provider + " for " + name + " isn't supported yet!"
+        puts "Please file a request for this provider to be added at https://github.com/lloydoliver/multi-vagrant/issues"
+        exit 1
+      end
 
     end
   end
