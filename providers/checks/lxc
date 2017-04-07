@@ -1,7 +1,9 @@
 unless Vagrant.has_plugin?('vagrant-lxc')
-  puts 'WARN: vagrant-lxc plugin is not installed! - lxc provider will not work'
+  puts 'ERROR: vagrant-lxc plugin is not installed!'
+  exit 1
 end
 
 unless system('which lxc-create >/dev/null')
-  puts 'WARN: lxc not installed! LXC provider will not work'
+  puts 'ERROR: lxc not installed!'
+  exit 1
 end
