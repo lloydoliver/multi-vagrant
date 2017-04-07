@@ -3,6 +3,6 @@
         lxc.customize 'cgroup.memory.limit_in_bytes', server["ram"]
         lxc.customize 'network.type', "veth"
         lxc.customize 'network.link', "lxcbr0"
-        lxc.customize 'network.ipv4', server["ip"]
+     #   lxc.customize 'network.ipv4', server["ip"]
       end
 

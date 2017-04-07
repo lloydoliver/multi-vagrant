@@ -19,16 +19,15 @@ codebase        = settings['codebase']      || {}
 codedest        = settings['codedest']      || {}
 defaultprovider = settings['provider']      || 'virtualbox'
 
-# Explicitly set default provider to virtualbox
-ENV['VAGRANT_DEFAULT_PROVIDER'] = defaultprovider
-
 defaultproviderfile = File.expand_path('providers/checks/' + defaultprovider)
 eval File.read(defaultproviderfile) if File.exists?(defaultproviderfile)
 
 # Create master box
 Vagrant.configure(API_VERSION) do |config|
+  config.vm.provider :dummy
   mname = mastername + '.' + defaultdomain
   config.vm.define mname do |master|
+    master.vm.provider defaultprovider
     master.vm.box = masterbox
     master.vm.network :private_network, ip: network + '.10'
     master.vm.hostname = mastername
@@ -58,6 +57,7 @@ Vagrant.configure(API_VERSION) do |config|
 
     # Create the VM
     config.vm.define name do |dev|
+      config.vm.provider provider
       dev.vm.hostname = name
       dev.ssh.insert_key = false
       dev.vm.box = box
