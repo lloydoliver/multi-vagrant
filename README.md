@@ -7,13 +7,16 @@
 The idea behind this is to have a vagrant setup to support multiple providers and provisioners defined in a single config.
 At present, this is just a single VIRTUALBOX provider setup, with no provisioners, but the plan is to add support for all of the things as time goes on.
 
+### Supported Providers
+
+Currently only the virtualbox and LXC providers are supported. Further provider support will be added eventually.
 
 ## Requirements
 
 ### Packages
 
 1. [vagrant 1.9.3+](http://www.vagrantup.com/downloads.html)
-2. [virtualbox 5.1.14+](https://www.virtualbox.org/wiki/Linux_Downloads)
+2. [virtualbox 5.1.14+](https://www.virtualbox.org/wiki/Linux_Downloads) (default provider)
 
 ## Configuration
 
@@ -55,6 +58,7 @@ defaultbox: ubuntu/xenial64
 masterbox: ubuntu/xenial64
 mastername: master
 network: 192.168.56
+provider: virtualbox
 ```
 **note:** when using the network option, omit the last octet as this is handled in the vagrantfile.
 
@@ -66,6 +70,15 @@ To add VMs to your environment, you will need to add a `vms` block to the config
 vms:
   - name: dev-box
 ```
+you can specify a different provider for individual VMS
+
+```yaml
+vms:
+  - name: dev-box
+    provider: lxc
+```
+**note:** when using a different provider, ensure you specify a box that supports the requested provider!
+
 
 you can customise certain parameters of your VM like this:-
 
@@ -123,7 +136,8 @@ settings:
   defaultbox: ubuntu/xenial64          
   masterbox: ubuntu/xenial64           
   mastername: iamthedoge            
-  network: 172.10.91                  
+  network: 172.10.91
+  provider: virtualbox
                                        
 vms:                                   
   - name: foo                       
@@ -143,12 +157,14 @@ vms:
     folders:
       from: '~/git/amazing/scripts'
       to: '/var/lib/scripts/'
+    box: 'fgrehm/trusty64-lxc'
+    provider: lxc
 ```
   
   
 # TODO
 
-  * add support for multiple providers
+  * add support for more providers
+  * add provisioner support
   * add support for multiple domains
-  * add support for multiple provisioners
   * drink beer

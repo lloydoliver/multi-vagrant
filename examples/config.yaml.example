@@ -14,6 +14,7 @@
 #   masterbox: ubuntu/xenial64      (optional)
 #   mastername: master001           (optional)
 #   network: 192.168.56             (optional) (leave last octect off)
+#   provider: virtualbox            (optional)
 #
 # vms:
 #   - name: foobar                  (** required **)
@@ -23,6 +24,7 @@
 #     folders:                      (optional)
 #       from: '/some/local/dir/'    (optional)
 #       to: '/some/dir/in/vm'       (optional)
+#     provider: virtualbox          (optional)
 #
 # the below example will add 2 boxes with names dave and fred with default values
 #

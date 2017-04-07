@@ -1,0 +1,7 @@
+      # Settings specific to Virtualbox
+      dev.vm.network :private_network, ip: ip
+      dev.vm 'virtualbox' do |v|
+        v.customize ["modifyvm", :id, "--name", name ]
+        v.customize ["modifyvm", :id, "--cpus", cpu ]
+        v.customize ["modifyvm", :id, "--memory", ram ]
+      end
