@@ -85,9 +85,9 @@ Vagrant.configure(API_VERSION) do |config|
         puts "Please file a request for this provider to be added at https://github.com/lloydoliver/multi-vagrant/issues"
         exit 1
       end
-
+      # load the provisioner specific files if provisioner is specified
       if provisioner
-        provisionerfile = File.expand_path('provisioners/' + provisioner + '/minion')
+        provisionerfile = File.expand_path('provisioners/' + provisioner + '/client')
         eval File.read(provisionerfile)
       end
 
