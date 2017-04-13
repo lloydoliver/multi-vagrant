@@ -11,6 +11,10 @@ At present, this is just a single VIRTUALBOX provider setup, with no provisioner
 
 Currently only the virtualbox and LXC providers are supported. Further provider support will be added eventually.
 
+### Supported Provisioners
+
+Currently only the SaltStack provisioner is supported. Further provisioner support will be added eventually.
+
 ## Requirements
 
 ### Packages
@@ -59,6 +63,8 @@ masterbox: ubuntu/xenial64
 mastername: master
 network: 192.168.56
 provider: virtualbox
+provisioner: salt | ""
+
 ```
 **note:** when using the network option, omit the last octet as this is handled in the vagrantfile.
 
@@ -138,6 +144,14 @@ settings:
   mastername: iamthedoge            
   network: 172.10.91
   provider: virtualbox
+  provisioner: salt
+  salt:
+    master:
+      folders:
+        - from: "/awesome/git/repo/states"
+          to: "/srv/salt"
+        - from: "awesome/git/repo/pillar"
+          to: "/srv/pillar"
                                        
 vms:                                   
   - name: foo                       
@@ -159,12 +173,14 @@ vms:
       to: '/var/lib/scripts/'
     box: 'fgrehm/trusty64-lxc'
     provider: lxc
+    salt:
+      highstate: True
 ```
   
   
 # TODO
 
   * add support for more providers
-  * add provisioner support
+  * add support for more provisioners
   * add support for multiple domains
   * drink beer
