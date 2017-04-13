@@ -22,7 +22,7 @@ default_master_config = YAML.load("
   auto_accept: true
   open_mode: true
   file_roots:
-    base: ['/srv/states']
+    base: ['/srv/salt']
   pillar_roots:
     base: ['/srv/pillar']
 ")
