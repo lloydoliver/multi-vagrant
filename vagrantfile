@@ -18,6 +18,7 @@ network         = settings['network']       || '192.168.56'
 codebase        = settings['codebase']      || {}
 codedest        = settings['codedest']      || {}
 defaultprovider = settings['provider']      || 'virtualbox'
+provisioner     = settings['provisioner']   || {}
 
 defaultproviderfile = File.expand_path('providers/checks/' + defaultprovider)
 eval File.read(defaultproviderfile) if File.exists?(defaultproviderfile)
@@ -36,6 +37,10 @@ Vagrant.configure(API_VERSION) do |config|
     master.vm.provider :virtualbox do |v|
       v.customize ["modifyvm", :id, "--memory", 1024]
       v.customize ["modifyvm", :id, "--name", mname]
+    end
+    if provisioner
+      provisionerfile = File.expand_path('provisioners/' + provisioner + '/master')
+      eval File.read(provisionerfile)
     end
   end
 
@@ -79,6 +84,11 @@ Vagrant.configure(API_VERSION) do |config|
         puts "UHNOES! " + provider + " for " + name + " isn't supported yet!"
         puts "Please file a request for this provider to be added at https://github.com/lloydoliver/multi-vagrant/issues"
         exit 1
+      end
+      # load the provisioner specific files if provisioner is specified
+      if provisioner
+        provisionerfile = File.expand_path('provisioners/' + provisioner + '/client')
+        eval File.read(provisionerfile)
       end
 
     end

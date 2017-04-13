@@ -1,15 +1,18 @@
 # Multi Vagrant
-
-(( WORK IN PROGRESS ))
+**-- W I P --**
 
 ## Overview
 
 The idea behind this is to have a vagrant setup to support multiple providers and provisioners defined in a single config.
-At present, this is just a single VIRTUALBOX provider setup, with no provisioners, but the plan is to add support for all of the things as time goes on.
+Supported providers and provisioners are listed below, support for others will be added over time.
 
 ### Supported Providers
 
 Currently only the virtualbox and LXC providers are supported. Further provider support will be added eventually.
+
+### Supported Provisioners
+
+Currently only the SaltStack provisioner is supported. Further provisioner support will be added eventually.
 
 ## Requirements
 
@@ -59,6 +62,8 @@ masterbox: ubuntu/xenial64
 mastername: master
 network: 192.168.56
 provider: virtualbox
+provisioner: salt | ""
+
 ```
 **note:** when using the network option, omit the last octet as this is handled in the vagrantfile.
 
@@ -138,6 +143,14 @@ settings:
   mastername: iamthedoge            
   network: 172.10.91
   provider: virtualbox
+  provisioner: salt
+  salt:
+    master:
+      folders:
+        - from: "/awesome/git/repo/states"
+          to: "/srv/salt"
+        - from: "awesome/git/repo/pillar"
+          to: "/srv/pillar"
                                        
 vms:                                   
   - name: foo                       
@@ -159,12 +172,14 @@ vms:
       to: '/var/lib/scripts/'
     box: 'fgrehm/trusty64-lxc'
     provider: lxc
+    salt:
+      highstate: True
 ```
   
   
 # TODO
 
   * add support for more providers
-  * add provisioner support
+  * add support for more provisioners
   * add support for multiple domains
   * drink beer

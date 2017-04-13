@@ -1,0 +1,28 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+salt            = settings['salt']          || {}
+sminion         = server['salt']            || {}
+install_type    = salt['install_type']      || 'stable'
+version         = sminion['version']        || salt['version'] 		|| {}
+verbose         = sminion['verbose']        || false
+highstate       = sminion['highstate']      || false
+minion_config   = sminion['config']			|| {}
+
+default_minion_config = YAML.load("
+  master: #{network + '.10'}
+  master_alive_interval: 9000
+")
+
+# Merge & override with options from the config
+minion_config = default_minion_config.merge!(minion_config)
+
+    dev.vm.provision :salt do |salt|
+      salt.minion_id         = name
+      salt.install_type      = install_type
+      salt.version           = version
+      salt.bootstrap_options = "-j '#{minion_config.to_json}'"
+      salt.run_highstate     = highstate
+      salt.verbose           = verbose
+#      salt.grains(grains)
+    end
