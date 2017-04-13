@@ -8,7 +8,7 @@ version         = smaster['version']        || {}
 verbose         = salt['verbose']           || false
 highstate       = smaster['highstate']      || false
 master_grains   = smaster['grains']         || {}
-master_config	= smaster['config']			|| {}
+master_config	= smaster['config']         || {}
 master_folders  = smaster['folders']        || [{"from" => "provisioners/salt/states", "to"  => "/srv/salt"},
                                                 {"from" => "provisioners/salt/pillar", "to" => "/srv/pillar"},
                                                 {"from" => "provisioners/salt/reactor", "to" => "/srv/reactor"}]
@@ -27,15 +27,8 @@ default_master_config = YAML.load("
     base: ['/srv/pillar']
 ")
 
-default_minion_config = YAML.load("
-  master: #{network + '.10'}
-  master_alive_interval: 9000
-")
-
 # Merge & override with options from the config
 master_config = default_master_config.merge!(master_config)
-#minion_config = default_minion_config.merge!(minion_config)
-
 
   if not (defined?(master_folders)).nil?
     master_folders.each do |folder|
