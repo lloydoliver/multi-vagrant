@@ -57,8 +57,8 @@ Some options and the defaults are:-
 
 ```yaml
 domain: local.dev
-defaultbox: ubuntu/xenial64
-masterbox: ubuntu/xenial64
+defaultbox: geerlingguy/ubuntu1604
+masterbox: geerlingguy/ubuntu1604
 mastername: master
 network: 192.168.56
 provider: virtualbox
@@ -127,7 +127,7 @@ Below are some example boxes to use for your environment more are available from
 | Distribution | VagrantCloud box |
 | ------------ | ---------------- |
 | Ubuntu Trusty 14.04 x86_64 | [ubuntu/trusty64](https://atlas.hashicorp.com/ubuntu/boxes/trusty64) |
-| Ubuntu Xenial 16.04 x86_64 | [ubuntu/xenial64](https://atlas.hashicorp.com/ubuntu/boxes/xenial64) |
+| Ubuntu Xenial 16.04 x86_64 | [geerlingguy/ubuntu1604](https://atlas.hashicorp.com/geerlingguy/boxes/ubuntu1604) |
 | RHEL 7.3 x86_64 | [iamseth/rhel-7.3](https://atlas.hashicorp.com/iamseth/boxes/rhel-7.3) |
 
 ### A complete example
@@ -138,8 +138,8 @@ settings:
   codebase: ~/git/suchcode/
   codedest: /srv/muchamaze/           
   domain: wow.com                  
-  defaultbox: ubuntu/xenial64          
-  masterbox: ubuntu/xenial64           
+  defaultbox: geerlingguy/ubuntu1604 
+  masterbox: geerlingguy/ubuntu1604   
   mastername: iamthedoge            
   network: 172.10.91
   provider: virtualbox
@@ -154,7 +154,7 @@ settings:
                                        
 vms:                                   
   - name: foo                       
-    box: ubuntu/xenial64               
+    box: geerlingguy/ubuntu1604    
     ram: 2048                                                 
     cpu: 2                                                    
     folders:                                                  

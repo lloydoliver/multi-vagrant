@@ -7,18 +7,18 @@
 # example:
 #
 # settings:
-#   codebase: ~/your/local/code     (** required **)
-#   codedest: /some/remote/dir      (** required **)
-#   domain: example.com             (optional)
-#   defaultbox: ubuntu/xenial64     (optional)
-#   masterbox: ubuntu/xenial64      (optional)
-#   mastername: master001           (optional)
-#   network: 192.168.56             (optional) (leave last octect off)
-#   provider: virtualbox            (optional)
+#   codebase: ~/your/local/code             (** required **)
+#   codedest: /some/remote/dir              (** required **)
+#   domain: example.com                     (optional)
+#   defaultbox: geerlingguy/ubuntu1604      (optional)
+#   masterbox: geerlingguy/ubuntu1604       (optional)
+#   mastername: master001                   (optional)
+#   network: 192.168.56                     (optional) (leave last octect off)
+#   provider: virtualbox                    (optional)
 #
 # vms:
 #   - name: foobar                  (** required **)
-#     box: ubuntu/xenial64          (optional)
+#     box: geerlingguy/ubuntu1604   (optional)
 #     ram: 2048                     (optional)
 #     cpu: 4                        (optional)
 #     folders:                      (optional)
