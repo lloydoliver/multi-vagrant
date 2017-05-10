@@ -1,4 +1,4 @@
-     # settings specific to LXC 
+     # settings specific to LXC
      dev.vm.provider 'lxc' do |lxc|
         lxc.customize 'cgroup.memory.limit_in_bytes', server["ram"]
         lxc.customize 'network.type', "veth"

@@ -18,7 +18,7 @@ network         = settings['network']       || '192.168.56'
 codebase        = settings['codebase']      || {}
 codedest        = settings['codedest']      || {}
 defaultprovider = settings['provider']      || 'virtualbox'
-provisioner     = settings['provisioner']   || {}
+provisioner     = settings['provisioner']   || 'none'
 
 defaultproviderfile = File.expand_path('providers/checks/' + defaultprovider)
 eval File.read(defaultproviderfile) if File.exists?(defaultproviderfile)
@@ -38,7 +38,7 @@ Vagrant.configure(API_VERSION) do |config|
       v.customize ["modifyvm", :id, "--memory", 1024]
       v.customize ["modifyvm", :id, "--name", mname]
     end
-    if provisioner
+    if provisioner != 'none'
       provisionerfile = File.expand_path('provisioners/' + provisioner + '/master')
       eval File.read(provisionerfile)
     end
@@ -62,7 +62,6 @@ Vagrant.configure(API_VERSION) do |config|
 
     # Create the VM
     config.vm.define name do |dev|
-      config.vm.provider provider
       dev.vm.hostname = name
       dev.ssh.insert_key = false
       dev.vm.box = box
@@ -86,7 +85,7 @@ Vagrant.configure(API_VERSION) do |config|
         exit 1
       end
       # load the provisioner specific files if provisioner is specified
-      if provisioner
+      if provisioner != 'none'
         provisionerfile = File.expand_path('provisioners/' + provisioner + '/client')
         eval File.read(provisionerfile)
       end
