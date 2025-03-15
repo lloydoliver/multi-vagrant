@@ -1,5 +1,4 @@
 # Multi Vagrant
-**-- W I P --**
 
 ## Overview
 
@@ -20,7 +19,14 @@ Additional providers will be added either when I have a need for them, or when s
 
 ### Supported Provisioners
 
-Currently only the SaltStack provisioner is supported. Further provisioner support will be added eventually.
+Currently the following providers are suppoerted for install on the master box
+  - Ansible
+  - Saltstack
+
+#### Ansible
+
+The master VM is the system that has Ansible installed, this is so that it acts as a control node. Ansible is not required on your machine (we like to keep it clean!). The control node will be used to run the playbooks on the other vagrant VMs.
+Playbooks are mounted from your codesource folder into the codedest folder on the VM (see below).
 
 ## Requirements
 
