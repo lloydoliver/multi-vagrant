@@ -85,7 +85,7 @@ Vagrant.configure(API_VERSION) do |config|
         exit 1
       end
       # load the provisioner specific files if provisioner is specified
-      if provisioner != 'none'
+      if provisioner == 'salt'
         provisionerfile = File.expand_path('provisioners/' + provisioner + '/client')
         eval File.read(provisionerfile)
       end
