@@ -1,0 +1,4 @@
+unless system('which vboxmanage >/dev/null')
+  puts 'ERROR: Virtualbox is not installed!'
+  exit 1
+end
