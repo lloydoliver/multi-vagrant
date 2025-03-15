@@ -1,6 +1,0 @@
-      # Settings specific to vmware_fusion
-      dev.vm.network :private_network, ip: ip
-      dev.vm.provider 'vmware_desktop' do |vmware|
-        vmware.vmx["numvcpus"] = cpu
-        vmware.vmx["memsize"] = ram
-      end
