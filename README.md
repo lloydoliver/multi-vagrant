@@ -6,9 +6,17 @@
 The idea behind this is to have a vagrant setup to support multiple providers and provisioners defined in a single config.
 Supported providers and provisioners are listed below, support for others will be added over time.
 
+This has been tested on Linux and MacOS
+
 ### Supported Providers
 
-Currently only the virtualbox and LXC providers are supported. Further provider support will be added eventually.
+Currently supported providers;
+  - Virtualbox (default)
+  - VMWare Desktop
+  - VMWare Fusion
+  - LXC
+
+Additional providers will be added either when I have a need for them, or when someone requests one.
 
 ### Supported Provisioners
 
@@ -16,10 +24,11 @@ Currently only the SaltStack provisioner is supported. Further provisioner suppo
 
 ## Requirements
 
-### Packages
+### Software Versions
 
 1. [vagrant 2.4.0+](http://www.vagrantup.com/downloads.html)
 2. [virtualbox 7.1.0+](https://www.virtualbox.org/wiki/Linux_Downloads) (default provider)
+3. [VMWare Workstation](https://www.vmware.com/products/desktop-hypervisor/workstation-and-fusion)
 
 ## Configuration
 
@@ -122,13 +131,13 @@ You can repeat this as many times as needed:
 
 #### Boxes
 
-Below are some example boxes to use for your environment more are available from [Atlas search](https://atlas.hashicorp.com/boxes/search)
+Below are some example boxes to use for your environment more are available from [VagrantCloud](https://portal.cloud.hashicorp.com/vagrant/discover)
 
 | Distribution | VagrantCloud box |
 | ------------ | ---------------- |
-| Ubuntu Trusty 14.04 x86_64 | [ubuntu/trusty64](https://atlas.hashicorp.com/ubuntu/boxes/trusty64) |
-| Ubuntu Xenial 16.04 x86_64 | [geerlingguy/ubuntu1604](https://atlas.hashicorp.com/geerlingguy/boxes/ubuntu1604) |
-| RHEL 7.3 x86_64 | [iamseth/rhel-7.3](https://atlas.hashicorp.com/iamseth/boxes/rhel-7.3) |
+| Ubuntu Trusty 14.04 | [ubuntu/trusty64](https://portal.cloud.hashicorp.com/vagrant/discover/ubuntu/trusty64) |
+| Rocky 9  | [rockylinux/9](https://portal.cloud.hashicorp.com/vagrant/discover/rockylinux/9) |
+| Debian 12 | [bentoo/debian-12](https://portal.cloud.hashicorp.com/vagrant/discover/bento/debian-12) |
 
 ### A complete example
 
