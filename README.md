@@ -18,8 +18,8 @@ Currently only the SaltStack provisioner is supported. Further provisioner suppo
 
 ### Packages
 
-1. [vagrant 1.9.3+](http://www.vagrantup.com/downloads.html)
-2. [virtualbox 5.1.14+](https://www.virtualbox.org/wiki/Linux_Downloads) (default provider)
+1. [vagrant 2.4.0+](http://www.vagrantup.com/downloads.html)
+2. [virtualbox 7.1.0+](https://www.virtualbox.org/wiki/Linux_Downloads) (default provider)
 
 ## Configuration
 
