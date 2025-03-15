@@ -8,7 +8,7 @@ version         = smaster['version']        || {}
 verbose         = salt['verbose']           || false
 highstate       = smaster['highstate']      || false
 master_grains   = smaster['grains']         || {}
-master_config	= smaster['config']         || {}
+master_config	= smaster['config']           || {}
 master_folders  = smaster['folders']        || [{"from" => "provisioners/salt/states", "to"  => "/srv/salt"},
                                                 {"from" => "provisioners/salt/pillar", "to" => "/srv/pillar"},
                                                 {"from" => "provisioners/salt/reactor", "to" => "/srv/reactor"}]
