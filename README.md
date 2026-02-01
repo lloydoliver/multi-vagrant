@@ -19,7 +19,7 @@ Additional providers will be added either when I have a need for them, or when s
 
 ### Supported Provisioners
 
-Currently the following providers are suppoerted for install on the master box
+Currently the following provisioners are supported for install on the master box
   - Ansible
   - Saltstack
 
@@ -32,7 +32,7 @@ Playbooks are mounted from your codesource folder into the codedest folder on th
 
 ### Software Versions
 
-1. [vagrant 2.4.0+](http://www.vagrantup.com/downloads.html)
+1. [vagrant 2.4.3+](http://www.vagrantup.com/downloads.html)
 2. [virtualbox 7.1.0+](https://www.virtualbox.org/wiki/Linux_Downloads) (default provider)
 3. [VMWare Workstation](https://www.vmware.com/products/desktop-hypervisor/workstation-and-fusion)
 
@@ -57,7 +57,7 @@ Let's look at what all this means!...
 #### settings
 
 The settings block defines some basic settings for your environment.   
-There are only two required values in this block which are -
+There are only two required values in this block (validation will fail if these are missing) -
 
 ```yaml
 settings:
@@ -72,13 +72,12 @@ Some options and the defaults are:-
 
 ```yaml
 domain: dev.arpa
-defaultbox: geerlingguy/ubuntu1604
-masterbox: geerlingguy/ubuntu1604
+defaultbox: bento/ubuntu-22.04
+masterbox: bento/ubuntu-22.04
 mastername: master
 network: 192.168.56
 provider: virtualbox
-provisioner: salt | ""
-
+provisioner: none
 ```
 **note:** when using the network option, omit the last octet as this is handled in the vagrantfile.
 
@@ -143,7 +142,7 @@ Below are some example boxes to use for your environment more are available from
 | ------------ | ---------------- |
 | Ubuntu Trusty 14.04 | [ubuntu/trusty64](https://portal.cloud.hashicorp.com/vagrant/discover/ubuntu/trusty64) |
 | Rocky 9  | [rockylinux/9](https://portal.cloud.hashicorp.com/vagrant/discover/rockylinux/9) |
-| Debian 12 | [bentoo/debian-12](https://portal.cloud.hashicorp.com/vagrant/discover/bento/debian-12) |
+| Debian 12 | [bento/debian-12](https://portal.cloud.hashicorp.com/vagrant/discover/bento/debian-12) |
 
 ### A complete example
 
