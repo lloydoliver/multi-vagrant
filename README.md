@@ -204,9 +204,22 @@ vms:
   - name: cache01
     ram: 1024
 ```
-  
-  
-# TODO
+
+## Testing
+
+Run the test suite:
+
+```bash
+make test
+```
+
+Or run tests directly:
+
+```bash
+rake test
+```
+
+## TODO
 
   * add support for more providers
   * add support for more provisioners
