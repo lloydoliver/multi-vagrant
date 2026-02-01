@@ -78,8 +78,30 @@ mastername: master
 network: 192.168.56
 provider: virtualbox
 provisioner: none
+master: true
 ```
 **note:** when using the network option, omit the last octet as this is handled in the vagrantfile.
+
+#### master
+
+The master VM can be customized with the `master` block. This allows you to configure RAM, CPU, and additional shared folders for the master VM:
+
+```yaml
+master:
+  ram: 2048
+  cpu: 2
+  folders:
+    - from: ~/extra/local/path
+      to: /extra/vm/path
+```
+
+To disable the master VM entirely (useful for simpler setups), set `master: false` in the settings block:
+
+```yaml
+settings:
+  master: false
+  # ... other settings
+```
 
 #### vms
 
@@ -147,47 +169,40 @@ Below are some example boxes to use for your environment more are available from
 ### A complete example
 
 ```yaml
-
-settings:                              
-  codebase: ~/git/suchcode/
-  codedest: /srv/muchamaze/           
-  domain: wow.com                  
-  defaultbox: geerlingguy/ubuntu1604 
-  masterbox: geerlingguy/ubuntu1604   
-  mastername: iamthedoge            
-  network: 172.10.91
+settings:
+  codebase: ~/git/myproject/
+  codedest: /srv/code
+  domain: dev.arpa
+  defaultbox: bento/ubuntu-22.04
+  masterbox: bento/ubuntu-22.04
+  mastername: control
+  network: 192.168.56
   provider: virtualbox
-  provisioner: salt
-  salt:
-    master:
-      folders:
-        - from: "/awesome/git/repo/states"
-          to: "/srv/salt"
-        - from: "awesome/git/repo/pillar"
-          to: "/srv/pillar"
-                                       
-vms:                                   
-  - name: foo                       
-    box: geerlingguy/ubuntu1604    
-    ram: 2048                                                 
-    cpu: 2                                                    
-    folders:                                                  
-      from: '~/git/amazing/code/'                                
-      to: '/var/www/html/code/'   
+  provisioner: ansible
 
-  - name: bar
-    box: iamseth/rhel-7.3
+master:
+  ram: 2048
+  cpu: 2
+  folders:
+    - from: ~/git/ansible-playbooks
+      to: /srv/ansible
+
+vms:
+  - name: web01
+    box: bento/ubuntu-22.04
+    ram: 2048
+    cpu: 2
+    folders:
+      - from: ~/git/webapp
+        to: /var/www/html
+
+  - name: db01
+    box: rockylinux/9
     ram: 4096
     cpu: 4
 
-  - name: baz
-    folders:
-      from: '~/git/amazing/scripts'
-      to: '/var/lib/scripts/'
-    box: 'fgrehm/trusty64-lxc'
-    provider: lxc
-    salt:
-      highstate: True
+  - name: cache01
+    ram: 1024
 ```
   
   

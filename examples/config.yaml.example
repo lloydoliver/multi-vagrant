@@ -4,40 +4,54 @@
 #
 # Copy this example file to ../config.yaml and edit to your needs.
 #
-# example:
-#
+# SETTINGS (global configuration)
+# ================================
 # settings:
 #   codebase: ~/your/local/code             (** required **)
 #   codedest: /some/remote/dir              (** required **)
-#   domain: example.com                     (optional)
-#   defaultbox: geerlingguy/ubuntu1604      (optional)
-#   masterbox: geerlingguy/ubuntu1604       (optional)
-#   mastername: master001                   (optional)
-#   network: 192.168.56                     (optional) (leave last octect off)
-#   provider: virtualbox                    (optional)
+#   domain: dev.arpa                        (optional, default: dev.arpa)
+#   defaultbox: bento/ubuntu-22.04          (optional)
+#   masterbox: bento/ubuntu-22.04           (optional)
+#   mastername: master                      (optional)
+#   network: 192.168.56                     (optional, omit last octet)
+#   provider: virtualbox                    (optional, options: virtualbox, vmware_desktop, vmware_fusion, lxc)
+#   provisioner: none                       (optional, options: none, ansible, salt)
+#   master: true                            (optional, set to false to disable master VM)
 #
+# MASTER VM CONFIGURATION (optional)
+# ==================================
+# master:
+#   ram: 2048                               (optional, default: 1024)
+#   cpu: 2                                  (optional, default: 1)
+#   folders:                                (optional, additional shared folders)
+#     - from: ~/extra/path
+#       to: /extra/mount
+#
+# CLIENT VMS
+# ==========
 # vms:
-#   - name: foobar                  (** required **)
-#     box: geerlingguy/ubuntu1604   (optional)
-#     ram: 2048                     (optional)
-#     cpu: 4                        (optional)
+#   - name: myvm                    (** required **, alphanumeric and hyphens only)
+#     box: bento/ubuntu-22.04       (optional)
+#     ram: 2048                     (optional, default: 512)
+#     cpu: 4                        (optional, default: 1)
+#     domain: custom.domain         (optional, overrides global domain)
+#     provider: lxc                 (optional, overrides global provider)
 #     folders:                      (optional)
-#       from: '/some/local/dir/'    (optional)
-#       to: '/some/dir/in/vm'       (optional)
-#     provider: virtualbox          (optional)
-#
-# the below example will add 2 boxes with names dave and fred with default values
-#
-# boxes:
-#   - name: dave
-#   - name: fred
+#       - from: '/local/path'
+#         to: '/vm/path'
 
 
 settings:
-  domain: dev.local
-  defaultbox: iamseth/rhel-7.3
+  domain: dev.arpa
+  defaultbox: bento/ubuntu-22.04
   codebase: /your/code/dir
   codedest: /srv/code
+  provider: virtualbox
+  provisioner: ansible
+
+master:
+  ram: 2048
+  cpu: 2
 
 vms:
   - name: dev1

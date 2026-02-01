@@ -1,8 +1,8 @@
-     # settings specific to LXC
-     dev.vm.provider 'lxc' do |lxc|
-        lxc.customize 'cgroup.memory.limit_in_bytes', server["ram"]
-        lxc.customize 'network.type', "veth"
-        lxc.customize 'network.link', "lxcbr0"
-     #   lxc.customize 'network.ipv4', server["ip"]
+      # Settings specific to LXC
+      dev.vm.network :private_network, ip: ip
+      dev.vm.provider 'lxc' do |lxc|
+        lxc.customize 'cgroup.memory.limit_in_bytes', ram
+        lxc.customize 'network.type', 'veth'
+        lxc.customize 'network.link', 'lxcbr0'
       end
 

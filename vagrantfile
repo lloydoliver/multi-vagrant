@@ -2,108 +2,199 @@
 # vi: set ft=ruby :
 
 # Minimum vagrant version and Vagrant API version needed.
-Vagrant.require_version ">= 2.4.3"
-API_VERSION = "2"
+Vagrant.require_version '>= 2.4.3'
+API_VERSION = '2'
 require 'yaml'
 
-# read YAML file to get config data and vm details
-config          = YAML.load_file('config.yaml')
-settings        = config['settings']        || {}
-vms             = config['vms']             || []
-defaultdomain   = settings['domain']        || 'dev.arpa'
-defaultbox      = settings['defaultbox']    || 'bento/ubuntu-22.04'
-masterbox       = settings['masterbox']     || defaultbox
-mastername      = settings['mastername']    || 'master'
-network         = settings['network']       || '192.168.56'
-codebase        = settings['codebase']      || {}
-codedest        = settings['codedest']      || {}
-defaultprovider = settings['provider']      || 'virtualbox'
-provisioner     = settings['provisioner']   || 'none'
+# Valid providers and provisioners
+VALID_PROVIDERS = %w[virtualbox vmware_desktop vmware_fusion lxc].freeze
+VALID_PROVISIONERS = %w[none ansible salt].freeze
+
+# Helper function for consistent error messages
+def config_error(message)
+  puts "[ERROR] #{message}"
+  exit 1
+end
+
+# Check config.yaml exists
+config_file = File.join(__dir__, 'config.yaml')
+unless File.exist?(config_file)
+  config_error "config.yaml not found. Copy examples/config.yaml.example to config.yaml and configure it."
+end
+
+# Read YAML file to get config data and vm details
+config_data     = YAML.load_file(config_file)
+settings        = config_data['settings']     || {}
+vms             = config_data['vms']          || []
+master_config   = config_data['master']       || {}
+
+# Global settings with defaults
+default_domain    = settings['domain']        || 'dev.arpa'
+default_box       = settings['defaultbox']    || 'bento/ubuntu-22.04'
+network           = settings['network']       || '192.168.56'
+default_provider  = settings['provider']      || 'virtualbox'
+provisioner       = settings['provisioner']   || 'none'
+codebase          = settings['codebase']
+codedest          = settings['codedest']
+enable_master     = settings.fetch('master', true)
+
+# Master VM settings (can override globals)
+master_name   = settings['mastername']        || 'master'
+master_box    = settings['masterbox']         || default_box
+master_ram    = master_config['ram']          || 1024
+master_cpu    = master_config['cpu']          || 1
+master_folders = master_config['folders']     || []
 
 # Validate required settings
-if codebase.nil? || codebase.empty? || codebase.is_a?(Hash)
-  raise "config.yaml: settings.codebase is required"
+if codebase.nil? || codebase.to_s.empty?
+  config_error "settings.codebase is required - path to your local code directory"
 end
-if codedest.nil? || codedest.empty? || codedest.is_a?(Hash)
-  raise "config.yaml: settings.codedest is required"
+if codedest.nil? || codedest.to_s.empty?
+  config_error "settings.codedest is required - mount point on the master VM"
 end
 
-defaultproviderfile = File.expand_path('providers/checks/' + defaultprovider)
-eval File.read(defaultproviderfile) if File.exist?(defaultproviderfile)
+# Validate provider
+unless VALID_PROVIDERS.include?(default_provider)
+  config_error "Invalid provider '#{default_provider}'. Valid options: #{VALID_PROVIDERS.join(', ')}"
+end
 
-# Create master box
+# Validate provisioner
+unless VALID_PROVISIONERS.include?(provisioner)
+  config_error "Invalid provisioner '#{provisioner}'. Valid options: #{VALID_PROVISIONERS.join(', ')}"
+end
+
+# Validate VM configurations
+vms.each_with_index do |vm, index|
+  unless vm['name']
+    config_error "vms[#{index}]: 'name' is required"
+  end
+
+  # Validate hostname format (alphanumeric and hyphens only)
+  unless vm['name'] =~ /\A[a-zA-Z0-9][a-zA-Z0-9\-]*\z/
+    config_error "vms[#{index}]: name '#{vm['name']}' is invalid. Use only alphanumeric characters and hyphens."
+  end
+
+  # Validate per-VM provider if specified
+  if vm['provider'] && !VALID_PROVIDERS.include?(vm['provider'])
+    config_error "vms[#{index}]: Invalid provider '#{vm['provider']}'. Valid options: #{VALID_PROVIDERS.join(', ')}"
+  end
+
+  # Validate ram is numeric if specified
+  if vm['ram'] && !vm['ram'].to_s.match?(/\A\d+\z/)
+    config_error "vms[#{index}]: ram must be a number (got '#{vm['ram']}')"
+  end
+
+  # Validate cpu is numeric if specified
+  if vm['cpu'] && !vm['cpu'].to_s.match?(/\A\d+\z/)
+    config_error "vms[#{index}]: cpu must be a number (got '#{vm['cpu']}')"
+  end
+end
+
+# Run provider check if available
+default_provider_check = File.join(__dir__, 'providers', 'checks', default_provider)
+if File.exist?(default_provider_check)
+  eval File.read(default_provider_check)
+end
+
+# Main Vagrant configuration
 Vagrant.configure(API_VERSION) do |config|
-  config.vm.provider :dummy
-  mname = mastername + '.' + defaultdomain
-  config.vm.define mname do |master|
-    master.vm.provider defaultprovider
-    master.vm.box = masterbox
-    master.vm.network :private_network, ip: network + '.10'
-    master.vm.hostname = mastername
-    master.ssh.insert_key = false
-    master.vm.synced_folder codebase, codedest
-    # Load provider-specific settings for master
-    master.vm.provider defaultprovider.to_sym do |v|
-      if defaultprovider == 'virtualbox'
-        v.customize ["modifyvm", :id, "--memory", 1024]
-        v.customize ["modifyvm", :id, "--name", mname]
-      elsif defaultprovider == 'vmware_desktop' || defaultprovider == 'vmware_fusion'
-        v.vmx["memsize"] = 1024
-        v.gui = false
+  # Create master VM (unless disabled)
+  if enable_master
+    master_fqdn = "#{master_name}.#{default_domain}"
+    master_ip = "#{network}.10"
+
+    # Variables needed by provider files
+    name = master_fqdn
+    ip = master_ip
+    ram = master_ram
+    cpu = master_cpu
+
+    config.vm.define master_fqdn, primary: true do |dev|
+      dev.vm.provider default_provider
+      dev.vm.box = master_box
+      dev.vm.hostname = master_name
+      dev.ssh.insert_key = false
+      dev.vm.synced_folder codebase, codedest
+
+      # Mount additional master folders if configured
+      master_folders.each do |folder|
+        dev.vm.synced_folder folder['from'], folder['to']
       end
-    end
-    if provisioner != 'none'
-      provisionerfile = File.expand_path('provisioners/' + provisioner + '/master')
-      eval File.read(provisionerfile)
+
+      # Load provider-specific settings
+      provider_file = File.join(__dir__, 'providers', default_provider)
+      if File.exist?(provider_file)
+        eval File.read(provider_file)
+      else
+        config_error "Provider '#{default_provider}' is not supported. Missing: #{provider_file}"
+      end
+
+      # Load master provisioner if specified
+      if provisioner != 'none'
+        provisioner_file = File.join(__dir__, 'provisioners', provisioner, 'master')
+        if File.exist?(provisioner_file)
+          eval File.read(provisioner_file)
+        else
+          config_error "Provisioner '#{provisioner}' master config not found: #{provisioner_file}"
+        end
+      end
     end
   end
 
-  # Iterate through entries in YAML file
-  count = 11 # set starting number for last octet of IP address
+  # Iterate through client VMs
+  count = 11 # Starting IP octet for client VMs
   vms.each do |server|
-    cpu       = server['cpu']       || 1
-    ram       = server['ram']       || '512'
-    box       = server['box']       || defaultbox
-    box_url   = server['boxurl']    || false
-    folders   = server['folders']   || false
-    domain    = server['domain']    || defaultdomain
-    name      = server['name'] + '.' + domain
-    ip        = network.to_s + '.' + count.to_s
-    provider  = server['provider']  || defaultprovider
+    vm_cpu      = server['cpu']&.to_i       || 1
+    vm_ram      = server['ram']&.to_s       || '512'
+    vm_box      = server['box']             || default_box
+    vm_box_url  = server['boxurl']
+    vm_folders  = server['folders']         || []
+    vm_domain   = server['domain']          || default_domain
+    vm_name     = server['name']
+    vm_fqdn     = "#{vm_name}.#{vm_domain}"
+    vm_ip       = "#{network}.#{count}"
+    vm_provider = server['provider']        || default_provider
 
-    # Increase count number for IP address usage
-    count     += 1
+    count += 1
 
-    # Create the VM
-    config.vm.define name do |dev|
-      dev.vm.hostname = name
+    # Run provider check for non-default providers
+    if vm_provider != default_provider
+      provider_check = File.join(__dir__, 'providers', 'checks', vm_provider)
+      if File.exist?(provider_check)
+        eval File.read(provider_check)
+      end
+    end
+
+    # Variables needed by provider files
+    name = vm_fqdn
+    ip = vm_ip
+    ram = vm_ram
+    cpu = vm_cpu
+
+    config.vm.define vm_fqdn do |dev|
+      dev.vm.hostname = vm_fqdn
       dev.ssh.insert_key = false
-      dev.vm.box = box
-      if box_url
-        dev.vm.box_url = box_url
-      end
-      if folders
-        for pair in folders
-          dev.vm.synced_folder pair['from'], pair['to']
-        end
+      dev.vm.box = vm_box
+      dev.vm.box_url = vm_box_url if vm_box_url
+
+      # Mount synced folders
+      vm_folders.each do |folder|
+        dev.vm.synced_folder folder['from'], folder['to']
       end
 
-      # Load provider specific settings
-      providerfile = File.expand_path('providers/' + provider)
-      if File.exist?(providerfile)
-        eval File.read(providerfile)
+      # Load provider-specific settings
+      provider_file = File.join(__dir__, 'providers', vm_provider)
+      if File.exist?(provider_file)
+        eval File.read(provider_file)
       else
-        # raise an error if provider support hasn't been added.
-        puts "UHNOES! " + provider + " for " + name + " isn't supported yet!"
-        puts "Please file a request for this provider to be added at https://github.com/lloydoliver/multi-vagrant/issues"
-        exit 1
-      end
-      # load the provisioner specific files if provisioner is specified
-      if provisioner == 'salt' || provisioner == 'ansible'
-        provisionerfile = File.expand_path('provisioners/' + provisioner + '/client')
-        eval File.read(provisionerfile) if File.exist?(provisionerfile)
+        config_error "Provider '#{vm_provider}' for '#{vm_fqdn}' is not supported. File an issue: https://github.com/lloydoliver/multi-vagrant/issues"
       end
 
+      # Load client provisioner if applicable
+      if %w[salt ansible].include?(provisioner)
+        provisioner_file = File.join(__dir__, 'provisioners', provisioner, 'client')
+        eval File.read(provisioner_file) if File.exist?(provisioner_file)
+      end
     end
   end
 end

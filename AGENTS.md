@@ -34,13 +34,13 @@ vagrant provision
 ## Architecture
 
 ### Configuration Flow
-1. `vagrantfile` reads `config.yaml`
+1. `vagrantfile` validates `config.yaml` (checks required fields, types, valid provider/provisioner names)
 2. Provider check scripts are evaluated from `providers/checks/<provider>`
-3. Master VM is created first with IP `.10` on the configured network
+3. Master VM is created first with IP `.10` (can be disabled with `settings.master: false`)
 4. Client VMs are created iteratively, starting at IP `.11`
 
 ### Key Files
-- `vagrantfile` - Main entry point; uses Ruby `eval` to dynamically load provider/provisioner code
+- `vagrantfile` - Main entry point with validation; uses Ruby `eval` to load provider/provisioner code
 - `config.yaml` - User configuration (gitignored; copy from `examples/config.yaml.example`)
 
 ### Provider System (`providers/`)
@@ -48,14 +48,21 @@ Each provider has two files:
 - `providers/checks/<provider>` - Pre-flight validation (e.g., checks if VirtualBox is installed)
 - `providers/<provider>` - VM-specific configuration block (network, CPU, RAM settings)
 
-To add a new provider: create both files following existing patterns. The provider file contains Ruby code that will be `eval`'d within the VM configuration block.
+Provider files expect these variables to be set: `name`, `ip`, `ram`, `cpu`, `dev` (VM config block)
+
+To add a new provider:
+1. Create `providers/<provider>` with VM configuration
+2. Create `providers/checks/<provider>` with installation validation
+3. Add provider name to `VALID_PROVIDERS` array in vagrantfile
 
 ### Provisioner System (`provisioners/`)
 Each provisioner has:
 - `provisioners/<provisioner>/master` - Master VM provisioning config
-- `provisioners/<provisioner>/client` - Client VM provisioning config (Salt only currently)
+- `provisioners/<provisioner>/client` - Client VM provisioning config
 
-Provisioner files are Ruby snippets that configure the Vagrant provisioner within the VM block context.
+To add a new provisioner:
+1. Create master and client files in `provisioners/<provisioner>/`
+2. Add provisioner name to `VALID_PROVISIONERS` array in vagrantfile
 
 ### Supported Providers
 - `virtualbox` (default)
@@ -64,15 +71,25 @@ Provisioner files are Ruby snippets that configure the Vagrant provisioner withi
 - `lxc`
 
 ### Supported Provisioners
-- `ansible` - Installs Ansible on master VM as control node
+- `none` (default) - No provisioning
+- `ansible` - Installs Ansible on master VM as control node; installs Python on clients
 - `salt` - Sets up SaltStack master/minion topology
 
 ## Configuration Reference
 
-Settings in `config.yaml`:
+### settings (required)
 - `codebase` / `codedest` (required) - Local code directory mounted to master VM
 - `network` - First 3 octets of private network (default: `192.168.56`)
 - `domain` - VM domain suffix (default: `dev.arpa`)
-- `provider` / `provisioner` - Default provider/provisioner for all VMs
+- `provider` - Default provider (default: `virtualbox`)
+- `provisioner` - Default provisioner (default: `none`)
+- `master` - Set to `false` to disable master VM
 
-Per-VM overrides: `box`, `ram`, `cpu`, `folders`, `provider`, `domain`
+### master (optional)
+- `ram` - Master VM RAM in MB (default: `1024`)
+- `cpu` - Master VM CPU count (default: `1`)
+- `folders` - Additional shared folders for master VM
+
+### vms (array)
+- `name` (required) - VM name (alphanumeric and hyphens only)
+- `box`, `ram`, `cpu`, `folders`, `provider`, `domain` - Per-VM overrides
