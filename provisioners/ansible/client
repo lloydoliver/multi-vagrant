@@ -1,0 +1,13 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+  # Ensure Python is installed on client VMs for Ansible connectivity
+  dev.vm.provision "shell", inline: <<-SHELL
+    if command -v apt-get &> /dev/null; then
+      apt-get update -qq && apt-get install -y -qq python3
+    elif command -v yum &> /dev/null; then
+      yum install -y -q python3
+    elif command -v dnf &> /dev/null; then
+      dnf install -y -q python3
+    fi
+  SHELL

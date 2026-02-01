@@ -11,7 +11,7 @@ config          = YAML.load_file('config.yaml')
 settings        = config['settings']        || {}
 vms             = config['vms']             || []
 defaultdomain   = settings['domain']        || 'dev.arpa'
-defaultbox      = settings['defaultbox']    || 'bento/ubuntu-22.04`'
+defaultbox      = settings['defaultbox']    || 'bento/ubuntu-22.04'
 masterbox       = settings['masterbox']     || defaultbox
 mastername      = settings['mastername']    || 'master'
 network         = settings['network']       || '192.168.56'
@@ -19,6 +19,14 @@ codebase        = settings['codebase']      || {}
 codedest        = settings['codedest']      || {}
 defaultprovider = settings['provider']      || 'virtualbox'
 provisioner     = settings['provisioner']   || 'none'
+
+# Validate required settings
+if codebase.nil? || codebase.empty? || codebase.is_a?(Hash)
+  raise "config.yaml: settings.codebase is required"
+end
+if codedest.nil? || codedest.empty? || codedest.is_a?(Hash)
+  raise "config.yaml: settings.codedest is required"
+end
 
 defaultproviderfile = File.expand_path('providers/checks/' + defaultprovider)
 eval File.read(defaultproviderfile) if File.exist?(defaultproviderfile)
@@ -34,9 +42,15 @@ Vagrant.configure(API_VERSION) do |config|
     master.vm.hostname = mastername
     master.ssh.insert_key = false
     master.vm.synced_folder codebase, codedest
-    master.vm.provider :virtualbox do |v|
-      v.customize ["modifyvm", :id, "--memory", 1024]
-      v.customize ["modifyvm", :id, "--name", mname]
+    # Load provider-specific settings for master
+    master.vm.provider defaultprovider.to_sym do |v|
+      if defaultprovider == 'virtualbox'
+        v.customize ["modifyvm", :id, "--memory", 1024]
+        v.customize ["modifyvm", :id, "--name", mname]
+      elsif defaultprovider == 'vmware_desktop' || defaultprovider == 'vmware_fusion'
+        v.vmx["memsize"] = 1024
+        v.gui = false
+      end
     end
     if provisioner != 'none'
       provisionerfile = File.expand_path('provisioners/' + provisioner + '/master')
@@ -45,7 +59,7 @@ Vagrant.configure(API_VERSION) do |config|
   end
 
   # Iterate through entries in YAML file
-  count = 12 # set starting number for last octect of IP address
+  count = 11 # set starting number for last octet of IP address
   vms.each do |server|
     cpu       = server['cpu']       || 1
     ram       = server['ram']       || '512'
@@ -85,9 +99,9 @@ Vagrant.configure(API_VERSION) do |config|
         exit 1
       end
       # load the provisioner specific files if provisioner is specified
-      if provisioner == 'salt'
+      if provisioner == 'salt' || provisioner == 'ansible'
         provisionerfile = File.expand_path('provisioners/' + provisioner + '/client')
-        eval File.read(provisionerfile)
+        eval File.read(provisionerfile) if File.exist?(provisionerfile)
       end
 
     end

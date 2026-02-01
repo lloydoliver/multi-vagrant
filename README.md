@@ -71,7 +71,7 @@ Other options under the settings block are entirely optional. If they are not su
 Some options and the defaults are:-
 
 ```yaml
-domain: local.dev
+domain: dev.arpa
 defaultbox: geerlingguy/ubuntu1604
 masterbox: geerlingguy/ubuntu1604
 mastername: master
